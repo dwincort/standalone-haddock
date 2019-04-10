@@ -27,6 +27,7 @@ data SHFlags = SHFlags
     , shDistDir         :: Maybe String
     , shHyperlinkSource :: Bool
     , shHoogle          :: Bool
+    , shInternal        :: Bool
     , shVerbosity       :: Verbosity
     , shDest            :: String
     , shPkgDirs         :: [String]
@@ -40,6 +41,7 @@ optParser =
     <*> optional (strOption (long "dist-dir" <> metavar "DIST-PATH" <> help "Dist work directory"))
     <*> switch (long "hyperlink-source" <> help "Generate source links in documentation")
     <*> switch (long "hoogle" <> help "Generate hoogle database information")
+    <*> switch (long "internal" <> help "Generate haddock for internal modules")
     <*> option ( auto >>= maybe (readerError "Bad verbosity") return . intToVerbosity )
       (  long "verbosity"
       <> short 'v'
@@ -103,6 +105,7 @@ main = do
       defaultHaddockFlags
         { haddockDistPref = Setup.Flag shDest
         , haddockLinkedSource = Setup.Flag shHyperlinkSource
+        , haddockInternal = Setup.Flag shInternal
         , haddockHoogle = Setup.Flag shHoogle
         , haddockHtml = Setup.Flag True
         }
