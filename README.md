@@ -33,12 +33,18 @@ in broken links in `index.html`. Please use any other version of Haddock.
 
 Usage
 -----
-
-    Usage: standalone-haddock [--package-db DB-PATH] -o OUTPUT-PATH [PACKAGE-PATH]
+    Usage: standalone-haddock [--package-db DB-PATH] [--compiler-exe EXE-PATH]
+                              [--dist-dir DIST-PATH] [--hyperlink-source] [--hoogle]
+                              [-v|--verbosity N] -o OUTPUT-PATH [PACKAGE-PATH]
 
     Available options:
       -h,--help                Show this help text
       --package-db DB-PATH     Additional package database
+      --compiler-exe EXE-PATH  Compiler binary
+      --dist-dir DIST-PATH     Dist work directory
+      --hyperlink-source       Generate source links in documentation
+      --hoogle                 Generate hoogle database information
+      -v,--verbosity N         Verbosity (number from 0 to 3)
       -o OUTPUT-PATH           Directory where html files will be placed
 
 `PACKAGE-PATH` is the path to the (unpacked) package — i.e. a directory with a

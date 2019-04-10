@@ -463,15 +463,18 @@ renderPureArgs version comp args = concat
     [
      (:[]) . (\f -> "--dump-interface="++ unDir (argOutputDir args) </> f)
      . fromFlag . argInterfaceFile $ args,
-     (\pname ->   if isVersion2
+     (\pname ->   if isVersion 2 0
                   then ["--optghc=-package-name", "--optghc=" ++ pname]
                   else ["--package=" ++ pname]) . display . fromFlag . argPackageName $ args,
+     ["--quickjump" | isVersion 2 19, True],
      (\(All b,xs) -> bool (map (("--hide=" ++). display) xs) [] b) . argHideModules $ args,
      bool ["--ignore-all-exports"] [] . getAny . argIgnoreExports $ args,
      maybe [] (\(m,e,l) -> ["--source-module=" ++ m
                            ,"--source-entity=" ++ e]
-                           ++ if isVersion2_14 then ["--source-entity-line=" ++ l]
-                                               else []
+                           ++ (if isVersion 2 14 then ["--source-entity-line=" ++ l]
+                                                 else [])
+                           ++ (if isVersion 2 17 then ["--hyperlinked-source"]
+                                                 else [])
               ) . flagToMaybe . argLinkSource $ args,
      maybe [] ((:[]).("--css="++)) . flagToMaybe . argCssFile $ args,
      maybe [] ((:[]).("--use-contents="++)) . flagToMaybe . argContents $ args,
@@ -481,10 +484,10 @@ renderPureArgs version comp args = concat
      (:[]).("--odir="++) . unDir . argOutputDir $ args,
      (:[]).("--title="++) . (bool (++" (internal documentation)") id (getAny $ argIgnoreExports args))
               . fromFlag . argTitle $ args,
-     [ "--optghc=" ++ opt | isVersion2
+     [ "--optghc=" ++ opt | isVersion 2 0
                           , (opts, _ghcVer) <- flagToList (argGhcOptions args)
                           , opt <- renderGhcOptions comp buildPlatform opts ],
-     maybe [] (\l -> ["-B"++l]) $ guard isVersion2 >> flagToMaybe (argGhcLibDir args), -- error if isVersion2 and Nothing?
+     maybe [] (\l -> ["-B"++l]) $ guard (isVersion 2 0) >> flagToMaybe (argGhcLibDir args), -- error if isVersion2 and Nothing?
      argTargets $ args
     ]
     where
@@ -492,12 +495,10 @@ renderPureArgs version comp args = concat
         map (\(i,mh) -> "--read-interface=" ++
           maybe "" (++",") mh ++ i)
       bool a b c = if c then a else b
-      isVersion2    = version >= mkVersion [2,0]
-      isVersion2_5  = version >= mkVersion [2,5]
-      isVersion2_14 = version >= mkVersion [2,14]
+      isVersion maj min = version >= mkVersion [maj,min]
       verbosityFlag
-       | isVersion2_5 = "--verbosity=1"
-       | otherwise = "--verbose"
+       | isVersion 2 5 = "--verbosity=1"
+       | otherwise     = "--verbose"
 
 
 -----------------------------------------------------------------------------------------------------------
